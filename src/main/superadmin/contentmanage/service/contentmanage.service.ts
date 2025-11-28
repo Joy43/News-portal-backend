@@ -605,53 +605,53 @@ export class ContentmanageService {
   }
 
   // ---------------- Soft delete hate comment ----------------
- @HandleError('Failed to soft delete hate comment', 'HateComment')
-async softDeleteHateComment(commentId: string) {
-  // Find the post that contains this comment
-  const postWithComment = await this.prisma.communityPost.findFirst({
-    where: {
-      comments: {
-        some: {
-          id: commentId,
-          hate_speech_detect: true,
-          isDeleted: false,
+  @HandleError('Failed to soft delete hate comment', 'HateComment')
+  async softDeleteHateComment(commentId: string) {
+    // Find the post that contains this comment
+    const postWithComment = await this.prisma.communityPost.findFirst({
+      where: {
+        comments: {
+          some: {
+            id: commentId,
+            hate_speech_detect: true,
+            isDeleted: false,
+          },
         },
       },
-    },
-    include: {
-      comments: true, // Include all comments in the post
-    },
-  });
+      include: {
+        comments: true, // Include all comments in the post
+      },
+    });
 
-  if (!postWithComment) {
-    throw new NotFoundException('Hate comment not found or already deleted');
+    if (!postWithComment) {
+      throw new NotFoundException('Hate comment not found or already deleted');
+    }
+
+    // Find the specific comment inside the post
+    const comment = postWithComment.comments.find((c) => c.id === commentId);
+
+    if (!comment) {
+      throw new NotFoundException('Hate comment not found');
+    }
+
+    // Soft delete the comment
+    const deleted = await this.prisma.comment.update({
+      where: { id: commentId },
+      data: {
+        isDeleted: true,
+        status: CommentStatus.Declined,
+        hate_speech_detect: false,
+        confidence: null,
+        explanation: null,
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Hate comment soft deleted successfully',
+      data: deleted,
+    };
   }
-
-  // Find the specific comment inside the post
-  const comment = postWithComment.comments.find((c) => c.id === commentId);
-
-  if (!comment) {
-    throw new NotFoundException('Hate comment not found');
-  }
-
-  // Soft delete the comment
-  const deleted = await this.prisma.comment.update({
-    where: { id: commentId },
-    data: {
-      isDeleted: true,
-      status: CommentStatus.Declined,
-      hate_speech_detect: false,
-      confidence: null,
-      explanation: null,
-    },
-  });
-
-  return {
-    success: true,
-    message: 'Hate comment soft deleted successfully',
-    data: deleted,
-  };
-}
 
   // ------------------------- get pending contents by contentType -------------------------
   @HandleError(

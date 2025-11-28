@@ -8,21 +8,29 @@ export class CreateRecommendationDto {
     required: true,
     description: 'Recommendation image file',
   })
- file?: Express.Multer.File;
+  file?: Express.Multer.File;
 
-  @ApiProperty({ description: 'Name of the recommendation', example: 'SENT Weekly' })
+  @ApiProperty({
+    description: 'Name of the recommendation',
+    example: 'SENT Weekly',
+  })
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({ description: 'Title of the recommendation', example: 'Education & Career' })
+  @ApiProperty({
+    description: 'Title of the recommendation',
+    example: 'Education & Career',
+  })
   @IsString()
   @IsNotEmpty()
   title: string;
 
-  @ApiProperty({ description: 'Description of the recommendation', example: 'Education & Career description now' })
+  @ApiProperty({
+    description: 'Description of the recommendation',
+    example: 'Education & Career description now',
+  })
   @IsString()
   @IsNotEmpty()
   description: string;
-
 }

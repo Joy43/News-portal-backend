@@ -10,8 +10,6 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-
-
 import { CreateSubscribeDto } from '../dto/create-subscribe.dto';
 import { ValidateAdmin } from 'src/common/jwt/jwt.decorator';
 import { PaginationDto } from 'src/common/dto/pagination';
@@ -19,7 +17,7 @@ import { SubscribeService } from '../services/subscribe.service';
 @ApiTags('subscribe')
 @Controller('subscribe')
 export class subscribeController {
-  constructor(private readonly subscribeService:SubscribeService ) {}
+  constructor(private readonly subscribeService: SubscribeService) {}
   @ApiOperation({ summary: 'Create a new contact' })
   @Post()
   create(@Body() createsubscribeDto: CreateSubscribeDto) {
@@ -43,7 +41,6 @@ export class subscribeController {
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.subscribeService.findOne(id);
   }
-
 
   @ApiOperation({ summary: 'Delete a subscribe by ID' })
   @ValidateAdmin()

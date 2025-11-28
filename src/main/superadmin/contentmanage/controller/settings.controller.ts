@@ -17,7 +17,11 @@ import {
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MulterService, FileType } from 'src/lib/multer/multer.service';
-import { GetUser, ValidateAuth, ValidateSuperAdmin } from 'src/common/jwt/jwt.decorator';
+import {
+  GetUser,
+  ValidateAuth,
+  ValidateSuperAdmin,
+} from 'src/common/jwt/jwt.decorator';
 
 import { SettingsService } from '../service/settings.service';
 import {
@@ -276,6 +280,4 @@ export class SettingsController {
   deleteAd(@Param('id') id: string) {
     return this.settingsService.deleteAd(id);
   }
-
-  
 }

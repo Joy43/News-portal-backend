@@ -30,7 +30,6 @@ export class ContentService {
     private readonly prisma: PrismaService,
     private readonly httpService: HttpService,
   ) {}
- 
 
   // content.service.ts
 
@@ -189,7 +188,9 @@ export class ContentService {
             userId: userId,
             categoryId: payload.categoryId,
             subCategoryId: payload.subCategoryId,
-            compareResult: compareResult ? JSON.stringify(compareResult) : undefined,
+            compareResult: compareResult
+              ? JSON.stringify(compareResult)
+              : undefined,
           },
         });
 
@@ -544,8 +545,6 @@ export class ContentService {
   }
 
   // --------------- update content---------
-
-  
 
   @HandleError('Failed to update content', 'content')
   async update(

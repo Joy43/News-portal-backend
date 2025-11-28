@@ -17,70 +17,72 @@ export class LiveEventService {
 
   // ---------------- Create Live Event ----------------
   @HandleError('Failed to create live event')
-async createLiveEvent(userId: string, dto: CreateLiveEventDto & { thumbnailS3?: string }) {
-  if (!dto.thumbnailS3) {
-    throw new AppError(400, 'Thumbnail image is required');
-  }
+  async createLiveEvent(
+    userId: string,
+    dto: CreateLiveEventDto & { thumbnailS3?: string },
+  ) {
+    if (!dto.thumbnailS3) {
+      throw new AppError(400, 'Thumbnail image is required');
+    }
 
-  const { tags, thumbnail, thumbnailS3, ...restDto } = dto;
-  const normalizedTags = Array.isArray(tags)
-    ? tags
-    : typeof tags === 'string'
-      ? (tags as string).split(',').map((t) => t.trim())
-      : [];
+    const { tags, thumbnail, thumbnailS3, ...restDto } = dto;
+    const normalizedTags = Array.isArray(tags)
+      ? tags
+      : typeof tags === 'string'
+        ? (tags as string).split(',').map((t) => t.trim())
+        : [];
 
-  const result = await this.prisma.$transaction(async (tx) => {
-    const liveEvent = await tx.liveEvent.create({
-      data: {
-        ...restDto,
-        userId,
-        tags: normalizedTags,
-        thumbnail: thumbnailS3, 
-      },
-    });
-
-    const notification = await tx.notification.create({
-      data: {
-        type: 'LiveEvent',
-        title: 'New Live Event Created',
-        message: `${restDto.title} is now live!`,
-        meta: {
-          liveEventId: liveEvent.id,
-          title: restDto.title,
-          thumbnail: thumbnailS3,
+    const result = await this.prisma.$transaction(async (tx) => {
+      const liveEvent = await tx.liveEvent.create({
+        data: {
+          ...restDto,
           userId,
-          date: new Date().toISOString(),
+          tags: normalizedTags,
+          thumbnail: thumbnailS3,
         },
-      },
+      });
+
+      const notification = await tx.notification.create({
+        data: {
+          type: 'LiveEvent',
+          title: 'New Live Event Created',
+          message: `${restDto.title} is now live!`,
+          meta: {
+            liveEventId: liveEvent.id,
+            title: restDto.title,
+            thumbnail: thumbnailS3,
+            userId,
+            date: new Date().toISOString(),
+          },
+        },
+      });
+
+      const users = await tx.user.findMany({ select: { id: true } });
+      const userIds = users.map((u) => u.id);
+
+      await tx.userNotification.createMany({
+        data: userIds.map((uId) => ({
+          userId: uId,
+          notificationId: notification.id,
+        })),
+        skipDuplicates: true,
+      });
+
+      await this.notificationGateway.notifyAllUsers('liveEvent', {
+        title: notification.title,
+        message: notification.message,
+        meta: notification.meta,
+      } as any);
+
+      return liveEvent;
     });
 
-    const users = await tx.user.findMany({ select: { id: true } });
-    const userIds = users.map((u) => u.id);
-
-    await tx.userNotification.createMany({
-      data: userIds.map((uId) => ({
-        userId: uId,
-        notificationId: notification.id,
-      })),
-      skipDuplicates: true,
-    });
-
-    await this.notificationGateway.notifyAllUsers('liveEvent', {
-      title: notification.title,
-      message: notification.message,
-      meta: notification.meta,
-    } as any);
-
-    return liveEvent;
-  });
-
-  return {
-    success: true,
-    message: 'Live event created successfully',
-    data: result,
-  };
-}
-
+    return {
+      success: true,
+      message: 'Live event created successfully',
+      data: result,
+    };
+  }
 
   // ---------------- Get All (only non-deleted) ----------------
   @HandleError('Failed to get live events')
@@ -107,40 +109,40 @@ async createLiveEvent(userId: string, dto: CreateLiveEventDto & { thumbnailS3?: 
 
   // ---------------- Update ----------------
   @HandleError('Failed to update live event')
-async updateLiveEvent(
-  id: string,
-  dto: UpdateLiveEventDto & { thumbnailS3?: string },
-) {
-  const existing = await this.prisma.liveEvent.findUnique({ where: { id } });
-  if (!existing || existing.isDeleted) {
-    throw new NotFoundException('Live event not found');
+  async updateLiveEvent(
+    id: string,
+    dto: UpdateLiveEventDto & { thumbnailS3?: string },
+  ) {
+    const existing = await this.prisma.liveEvent.findUnique({ where: { id } });
+    if (!existing || existing.isDeleted) {
+      throw new NotFoundException('Live event not found');
+    }
+
+    const { thumbnail, thumbnailS3, tags, ...restDto } = dto;
+
+    const normalizedTags = tags
+      ? Array.isArray(tags)
+        ? tags
+        : typeof tags === 'string'
+          ? (tags as string).split(',').map((tag) => tag.trim())
+          : []
+      : undefined;
+
+    const updatedEvent = await this.prisma.liveEvent.update({
+      where: { id },
+      data: {
+        ...restDto,
+        ...(thumbnailS3 && { thumbnail: thumbnailS3 }),
+        ...(normalizedTags && { tags: normalizedTags }),
+      },
+    });
+
+    return {
+      success: true,
+      message: 'Live event updated successfully',
+      data: updatedEvent,
+    };
   }
-
-  const { thumbnail, thumbnailS3, tags, ...restDto } = dto;
-
-  const normalizedTags = tags
-    ? Array.isArray(tags)
-      ? tags
-      : typeof tags === 'string'
-        ? (tags as string).split(',').map((tag) => tag.trim())
-        : []
-    : undefined;
-
-  const updatedEvent = await this.prisma.liveEvent.update({
-    where: { id },
-    data: {
-      ...restDto,
-      ...(thumbnailS3 && { thumbnail: thumbnailS3 }),
-      ...(normalizedTags && { tags: normalizedTags }),
-    },
-  });
-
-  return {
-    success: true,
-    message: 'Live event updated successfully',
-    data: updatedEvent,
-  };
-}
 
   // ---------------- Soft Delete ----------------
   @HandleError('Failed to delete live event')

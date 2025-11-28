@@ -198,5 +198,4 @@ export class UserController {
   changeReviewAlert(@GetUser('userId') userId: string) {
     return this.userService.changeReviewAlert(userId);
   }
-  
 }

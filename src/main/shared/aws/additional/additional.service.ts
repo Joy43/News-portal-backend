@@ -7,11 +7,10 @@ import * as mime from 'mime-types';
 import { promisify } from 'util';
 import { Additionaldto } from '../uploadadditional.dto';
 
-
 const unlinkAsync = promisify(fs.unlink);
 
 @Injectable()
-export class AdditionalS3Service  {
+export class AdditionalS3Service {
   private s3: S3;
 
   constructor() {
@@ -24,10 +23,7 @@ export class AdditionalS3Service  {
     });
   }
 
-  async uploadFileToS3(
-    localFilePath: string,
-    prefix: string,
-  ) {
+  async uploadFileToS3(localFilePath: string, prefix: string) {
     const fileContent = fs.readFileSync(localFilePath);
     const fileExt = path.extname(localFilePath);
     const fileName = `${prefix}-${path.basename(localFilePath)}`;
@@ -60,7 +56,7 @@ export class AdditionalS3Service  {
     }
   }
 
-  create(createTestawDto:Additionaldto ) {
+  create(createTestawDto: Additionaldto) {
     return 'This action adds a new testaw';
   }
 
@@ -71,5 +67,4 @@ export class AdditionalS3Service  {
   findOne(id: number) {
     return `This action returns a #${id} testaw`;
   }
-
 }

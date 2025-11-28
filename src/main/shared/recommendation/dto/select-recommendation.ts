@@ -11,4 +11,3 @@ export class UseSelectRecommendationDto {
   @IsUUID('all', { each: true })
   recommendationIds: string[];
 }
-

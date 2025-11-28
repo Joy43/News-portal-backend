@@ -7,7 +7,7 @@ import { SettingsService } from './service/settings.service';
 
 @Module({
   imports: [NotificationModule],
-  controllers: [ContentmanageController,SettingsController],
-  providers: [ContentmanageService,SettingsService],
+  controllers: [ContentmanageController, SettingsController],
+  providers: [ContentmanageService, SettingsService],
 })
 export class ContentmanageModule {}

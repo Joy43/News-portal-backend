@@ -1,5 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsDateString, IsOptional, IsString, IsUrl } from 'class-validator';
+import {
+  IsArray,
+  IsDateString,
+  IsOptional,
+  IsString,
+  IsUrl,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class CreateLiveEventDto {

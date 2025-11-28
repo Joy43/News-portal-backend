@@ -42,7 +42,7 @@ export class TestawsController {
     }
 
     //  Upload to AWS S3
-    const s3Result = await uploadFileToS3(file?.path)
+    const s3Result = await uploadFileToS3(file?.path);
     console.log(' Uploaded to S3:', s3Result.url);
 
     return {

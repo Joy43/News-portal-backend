@@ -20,7 +20,7 @@ export class AdminDashboardController {
   constructor(private readonly adminDashboardService: AdminDashboardService) {}
 
   // ------------------admin dashboard overview--------------------
-  
+
   @ApiOperation({ summary: 'admin get oveview' })
   @ApiBearerAuth()
   @ValidateAdmin()
@@ -32,7 +32,7 @@ export class AdminDashboardController {
   // -------------------  Admin only -------------------
 
   @ApiBearerAuth()
-  @ValidateAdmin() 
+  @ValidateAdmin()
   @Get('traffic-engagement')
   @ApiOperation({ summary: 'Get traffic & engagement overview admin' })
   async getOverview() {
@@ -53,7 +53,10 @@ export class AdminDashboardController {
   @ApiBearerAuth()
   @ValidateAdmin()
   @Get('top-performance')
-  @ApiOperation({ summary: 'Get top performance contents super admin top performance with view' })
+  @ApiOperation({
+    summary:
+      'Get top performance contents super admin top performance with view',
+  })
   async getTopPerformance() {
     const result = await this.adminDashboardService.topPerformance();
     return { success: true, data: result };
@@ -68,7 +71,4 @@ export class AdminDashboardController {
     const result = await this.adminDashboardService.contentHistory();
     return { success: true, data: result };
   }
-  
-  
-
 }

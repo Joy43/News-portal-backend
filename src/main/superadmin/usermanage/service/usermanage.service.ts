@@ -40,6 +40,4 @@ export class UsermanageService {
   }
 
   // -------------ChnageReviewAlert---
-
- 
 }

@@ -24,10 +24,7 @@ export class TestawsService {
     });
   }
 
-  async uploadFileToS3(
-    localFilePath: string,
-    prefix: string,
-  ) {
+  async uploadFileToS3(localFilePath: string, prefix: string) {
     const fileContent = fs.readFileSync(localFilePath);
     const fileExt = path.extname(localFilePath);
     const fileName = `${prefix}-${path.basename(localFilePath)}`;

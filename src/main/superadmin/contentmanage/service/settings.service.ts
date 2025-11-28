@@ -260,6 +260,4 @@ export class SettingsService {
     const data = await this.prisma.ads.delete({ where: { id } });
     return successResponse(data, 'Ad deleted successfully');
   }
-
- 
 }

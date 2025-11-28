@@ -68,44 +68,57 @@ export class CommunityController {
   //   return this.communityService.create(createCommunityDto, userId, files);
   // }
 
- @ApiBearerAuth()
-@ValidateAuth()
-@Post('/community-post')
-@ApiConsumes('multipart/form-data')
-@UseInterceptors(
-  FileFieldsInterceptor(
-    [
-      { name: 'file', maxCount: 1 },
-      { name: 'video', maxCount: 1 },
-    ],
-    new MulterService().createMulterOptions('./uploads', 'content', FileType.ANY),
-  ),
-)
-async create(
-  @UploadedFiles()
-  files: { file?: Express.Multer.File[]; video?: Express.Multer.File[] },
-  @GetUser('userId') userId: string,
-  @Body() createCommunityDto: CreateCommunityDto,
-) {
-  // Upload image to S3
-  if (files.file && files.file[0]) {
-    const s3File = await uploadFileToS3(files.file[0].path);
-    createCommunityDto.file = s3File;
-    try { await import('fs/promises').then(fs => fs.unlink(files.file![0].path)); } 
-    catch (err) { console.warn('⚠️ Failed to delete local image:', err); }
+  @ApiBearerAuth()
+  @ValidateAuth()
+  @Post('/community-post')
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileFieldsInterceptor(
+      [
+        { name: 'file', maxCount: 1 },
+        { name: 'video', maxCount: 1 },
+      ],
+      new MulterService().createMulterOptions(
+        './uploads',
+        'content',
+        FileType.ANY,
+      ),
+    ),
+  )
+  async create(
+    @UploadedFiles()
+    files: { file?: Express.Multer.File[]; video?: Express.Multer.File[] },
+    @GetUser('userId') userId: string,
+    @Body() createCommunityDto: CreateCommunityDto,
+  ) {
+    // Upload image to S3
+    if (files.file && files.file[0]) {
+      const s3File = await uploadFileToS3(files.file[0].path);
+      createCommunityDto.file = s3File;
+      try {
+        await import('fs/promises').then((fs) =>
+          fs.unlink(files.file![0].path),
+        );
+      } catch (err) {
+        console.warn('⚠️ Failed to delete local image:', err);
+      }
+    }
+
+    // Upload video to S3
+    if (files.video && files.video[0]) {
+      const s3Video = await uploadFileToS3(files.video[0].path);
+      createCommunityDto.video = s3Video;
+      try {
+        await import('fs/promises').then((fs) =>
+          fs.unlink(files.video![0].path),
+        );
+      } catch (err) {
+        console.warn('⚠️ Failed to delete local video:', err);
+      }
+    }
+
+    return this.communityService.create(createCommunityDto, userId);
   }
-
-  // Upload video to S3
-  if (files.video && files.video[0]) {
-    const s3Video = await uploadFileToS3(files.video[0].path);
-    createCommunityDto.video = s3Video;
-    try { await import('fs/promises').then(fs => fs.unlink(files.video![0].path)); } 
-    catch (err) { console.warn('⚠️ Failed to delete local video:', err); }
-  }
-
-  return this.communityService.create(createCommunityDto, userId);
-}
-
 
   // ----------- Add Comment ------------
   @ApiBearerAuth()

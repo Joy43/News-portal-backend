@@ -28,7 +28,7 @@ async function bootstrap() {
         'https://api.australiancanvas.com/docs',
         'https://australiancanvas.com',
         'https://beta.australiancanvas.com',
-        'https://ai.australiancanvas.com'
+        'https://ai.australiancanvas.com',
       ];
 
       if (!origin || allowedOrigins.includes(origin)) {

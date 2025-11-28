@@ -57,18 +57,17 @@ export class RecommendationController {
   }
 
   // -------- Assign user selected recommendation to a user ----------
- // recommendation.controller.ts
-@ApiOperation({ summary: 'Assign multiple recommendations to a user' })
-@ValidateAuth()
-@ApiBearerAuth()
-@Post('userselect')
-async userSelectRecommendation(
-  @GetUser('userId') userId: string,
-  @Body() body: UseSelectRecommendationDto,
-) {
-  return this.recommendationService.userSelect(userId, body);
-}
-
+  // recommendation.controller.ts
+  @ApiOperation({ summary: 'Assign multiple recommendations to a user' })
+  @ValidateAuth()
+  @ApiBearerAuth()
+  @Post('userselect')
+  async userSelectRecommendation(
+    @GetUser('userId') userId: string,
+    @Body() body: UseSelectRecommendationDto,
+  ) {
+    return this.recommendationService.userSelect(userId, body);
+  }
 
   // -------- Get all ----------
   @ApiOperation({ summary: 'Get all recommendations' })
@@ -118,19 +117,21 @@ async userSelectRecommendation(
   }
 
   // recommendation.controller.ts
-@ApiOperation({ summary: 'Get all recommendations selected by the user' })
-@ValidateAuth()
-@ApiBearerAuth()
-@Get('user-selected')
-async getUserSelectedRecommendations(@GetUser('userId') userId: string) {
-  return this.recommendationService.getUserSelected(userId);
-}
+  @ApiOperation({ summary: 'Get all recommendations selected by the user' })
+  @ValidateAuth()
+  @ApiBearerAuth()
+  @Get('user-selected')
+  async getUserSelectedRecommendations(@GetUser('userId') userId: string) {
+    return this.recommendationService.getUserSelected(userId);
+  }
 
-@ApiOperation({ summary: 'Get user selected recommendations with category contents' })
-@ValidateAuth()
-@ApiBearerAuth()
-@Get('user-selected-with-content')
-async getUserSelectedWithContent(@GetUser('userId') userId: string) {
-  return this.recommendationService.getUserSelectedWithContent(userId);
-}
+  @ApiOperation({
+    summary: 'Get user selected recommendations with category contents',
+  })
+  @ValidateAuth()
+  @ApiBearerAuth()
+  @Get('user-selected-with-content')
+  async getUserSelectedWithContent(@GetUser('userId') userId: string) {
+    return this.recommendationService.getUserSelectedWithContent(userId);
+  }
 }

@@ -37,13 +37,13 @@ export class CreateContentDto {
   @IsString()
   paragraph?: string;
 
-    @ApiPropertyOptional({
+  @ApiPropertyOptional({
     description: 'categorysslug ',
     example: 'This post categorysslug ...',
   })
   @IsOptional()
   @IsString()
-  categorysslug ?: string;
+  categorysslug?: string;
 
   @ApiPropertyOptional({
     description: 'categorysslug ',
@@ -51,8 +51,7 @@ export class CreateContentDto {
   })
   @IsOptional()
   @IsString()
- subcategorysslug ?: string;
-
+  subcategorysslug?: string;
 
   @ApiPropertyOptional({
     description: 'Short quote for highlight',
@@ -146,8 +145,6 @@ export class CreateContentDto {
   })
   @IsUUID()
   subCategoryId: string;
-
- 
 
   @ApiPropertyOptional({
     description:

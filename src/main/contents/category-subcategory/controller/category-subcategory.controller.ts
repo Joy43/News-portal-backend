@@ -72,12 +72,11 @@ export class CategorySubcategoryController {
   findOneSubcategory(@Param('id') id: string) {
     return this.categorySubcategoryService.findOneSubcategory(id);
   }
-@ApiOperation({ summary: 'Get subcategory by slug' })
+  @ApiOperation({ summary: 'Get subcategory by slug' })
   @Get('subcategory/slug/:slug')
   findOneSubcategoryBySlug(@Param('slug') subslug: string) {
     return this.categorySubcategoryService.findOneSubcategoryBySlug(subslug);
   }
-
 
   @ApiOperation({ summary: 'Get category by slug' })
   @Get('category/slug/:slug')

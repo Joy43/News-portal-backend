@@ -4,7 +4,7 @@ import { ContentController } from './controller/content.controller';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports:[HttpModule],
+  imports: [HttpModule],
   controllers: [ContentController],
   providers: [ContentService],
 })

@@ -20,7 +20,8 @@ export class UpdateProfileDto {
   fullName?: string;
 
   @ApiProperty({
-    example: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry',
+    example:
+      'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry',
     description: 'bio or about',
     required: false,
   })

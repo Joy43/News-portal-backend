@@ -13,7 +13,8 @@ enum AdditionalFieldType {
 
 export class AdditionalFieldDto {
   @ApiProperty({
-    description: 'Type of the additional field (paragraph, image, quote, audio, or video)',
+    description:
+      'Type of the additional field (paragraph, image, quote, audio, or video)',
     enum: AdditionalFieldType,
     example: AdditionalFieldType.PARAGRAPH,
   })

@@ -87,7 +87,6 @@ export class ContentController {
     return this.contentService.createContentReaction({ ...dto, userId });
   }
 
-
   // content.controller.ts
   @ApiOperation({
     summary: 'Create new content with files and additional data',
@@ -542,13 +541,11 @@ export class ContentController {
     return this.contentService.update(id, dto, userId, files);
   }
 
-// ------------------------ recomdendation article show with contentid user other category , sub category only 5 content ------------------------
+  // ------------------------ recomdendation article show with contentid user other category , sub category only 5 content ------------------------
 
-@ApiOperation({ summary: 'Get recommended articles based on content ID' })
-@Get('recommended-articles/:contentId')
-async getRecommendedArticles(@Param('contentId') contentId: string) {
-  return this.contentService.getRecommendedArticles(contentId);
-}
-
-
+  @ApiOperation({ summary: 'Get recommended articles based on content ID' })
+  @Get('recommended-articles/:contentId')
+  async getRecommendedArticles(@Param('contentId') contentId: string) {
+    return this.contentService.getRecommendedArticles(contentId);
+  }
 }

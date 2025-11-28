@@ -1,0 +1,2 @@
+node ./scripts/ci-hooks.js
+npm run format
