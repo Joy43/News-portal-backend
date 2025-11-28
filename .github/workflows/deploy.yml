@@ -3,7 +3,7 @@ name: CI/CD Deploy with Docker Compose
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
