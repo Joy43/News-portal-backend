@@ -53,14 +53,14 @@ async function bootstrap() {
   // --------swagger api----
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  SwaggerModule.setup('api/docs', app, document);
   // ---------------webhook raw body parser----------------
   // Stripe requires the raw body to construct the event.
   app.use('/stripe/webhook', bodyParser.raw({ type: 'application/json' }));
   const configService = app.get(ConfigService);
-  const port = parseInt(configService.get<string>(ENVEnum.PORT) ?? '5000', 10);
+  const port = parseInt(configService.get<string>(ENVEnum.PORT) ?? '5050', 10);
   await app.listen(port);
   console.log(`🚀 Server running on http://localhost:${port}`);
-  console.log(`📑 Swagger docs available at http://localhost:${port}/docs`);
+  console.log(`📑 Swagger docs available at http://localhost:${port}/api/docs`);
 }
 bootstrap();

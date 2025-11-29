@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
-import * as bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { PrismaService } from '../prisma/prisma.service';
 import { JWTPayload } from 'src/common/jwt/jwt.interface';
@@ -70,10 +70,13 @@ export class UtilsService {
   }
 
   generateToken(payload: JWTPayload): string {
-    const token = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>(ENVEnum.JWT_SECRET),
-      expiresIn: this.configService.get<string>(ENVEnum.JWT_EXPIRES_IN),
-    });
+    const token = this.jwtService.sign(
+      payload as any,
+      {
+        secret: this.configService.get<string>(ENVEnum.JWT_SECRET),
+        expiresIn: this.configService.get<string>(ENVEnum.JWT_EXPIRES_IN),
+      } as any,
+    );
 
     return token;
   }
