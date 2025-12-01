@@ -19,36 +19,24 @@ async function bootstrap() {
     .build();
 
   app.enableCors({
-    origin: '*',
-    credentials: true,
+    origin: (origin, callback) => {
+      const allowedOrigins = [
+        'http://localhost:5173',
+        'https://news-portal-backend-scsp.onrender.com',
+        'http://localhost:3000',
+        'localhost:5050/api',
+      ];
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: '*',
+    credentials: true,
+    allowedHeaders: 'Content-Type, Authorization',
   });
-
-  // app.enableCors({
-  //   origin: (origin, callback) => {
-  //     const allowedOrigins = [
-  //       'https://beta.australiancanvas.com',
-  //       'https://indiansydny.vercel.app',
-  //       'http://localhost:3000',
-  //       'http://localhost:5173',
-  //       'https://api.australiancanvas.com/docs',
-  //       'https://australiancanvas.com',
-  //       'https://beta.australiancanvas.com',
-  //       'https://ai.australiancanvas.com',
-  //       'ocalhost:5050/api'
-  //     ];
-
-  //     if (!origin || allowedOrigins.includes(origin)) {
-  //       callback(null, true);
-  //     } else {
-  //       callback(new Error('Not allowed by CORS'));
-  //     }
-  //   },
-  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  //   credentials: true,
-  //   allowedHeaders: 'Content-Type, Authorization',
-  // });
 
   app.useGlobalPipes(
     new ValidationPipe({
