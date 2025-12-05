@@ -2,14 +2,13 @@ services:
   server:
     container_name: newsportal-server
     restart: always
-    image: ${DOCKER_USERNAME}/newsportal-server:latest # Use pre-built image from Docker Hub
+    image: "${DOCKER_USERNAME}/newsportal-server:latest"  # DO NOT remove quotes
     env_file:
       - .env
     environment:
-      # Override DATABASE_URL for container networking
       DATABASE_URL: "postgresql://postgres:postgres@db:5432/newsportal"
     ports:
-      - 5050:5050
+      - "5050:5050"
     depends_on:
       db:
         condition: service_healthy

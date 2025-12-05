@@ -34,18 +34,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Copy docker-compose.yml to server
+      - name: Upload compose + env file
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: docker-compose.yml 
-          target: ~/newsportal/ 
+          source: |
+            docker-compose.yml
+            .env
+          target: ~/newsportal/
           port: 22
-          debug: true 
-
-   
+          debug: true
 
       - name: Deploy to VPS/EC2 via SSH
         uses: appleboy/ssh-action@v1.2.4
@@ -53,24 +53,22 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: DOCKER_USERNAME # Pass secret as env var to script
+          envs: DOCKER_USERNAME
           script: |
             cd ~/newsportal
 
-            # Deploy: Stop old, pull new image, start
+            # Ensure docker engine is running
+            sudo systemctl restart docker
+
+            # Export variable for docker-compose
+            export DOCKER_USERNAME=${DOCKER_USERNAME}
+
             sudo docker compose down --remove-orphans
             sudo docker compose rm -f
             sudo docker compose pull
             sudo docker compose up -d
             sudo docker image prune -f
 
-            # Wait a moment for containers to start
             sleep 5
-
-            # Check container status
             sudo docker compose ps
-
-            # Tail logs briefly for verification
-            sudo docker compose logs --tail=20 server
-        env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            sudo docker compose logs --tail 20 server
