@@ -34,7 +34,21 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Upload compose + env file
+      # 🚀 CREATE .env FILE SECURELY FROM GITHUB SECRETS
+      - name: Generate .env
+        run: |
+          echo "PORT=5050" >> .env
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}" >> .env
+          echo "STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}" >> .env
+          echo "FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}" >> .env
+          echo "FIREBASE_PRIVATE_KEY=${{ secrets.FIREBASE_PRIVATE_KEY }}" >> .env
+          echo "FIREBASE_CLIENT_EMAIL=${{ secrets.FIREBASE_CLIENT_EMAIL }}" >> .env
+          echo "APP_DOMAIN=${{ secrets.APP_DOMAIN }}" >> .env
+
+      # 🚀 SAFE COPY OF FILES TO EC2
+      - name: Upload docker-compose & .env
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -47,7 +61,8 @@ jobs:
           port: 22
           debug: true
 
-      - name: Deploy to VPS/EC2 via SSH
+      # 🚀 DEPLOY USING SSH
+      - name: Deploy to VPS/EC2
         uses: appleboy/ssh-action@v1.2.4
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -57,10 +72,8 @@ jobs:
           script: |
             cd ~/newsportal
 
-            # Ensure docker engine is running
             sudo systemctl restart docker
 
-            # Export variable for docker-compose
             export DOCKER_USERNAME=${DOCKER_USERNAME}
 
             sudo docker compose down --remove-orphans
