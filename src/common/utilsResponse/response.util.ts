@@ -53,3 +53,47 @@ export const errorResponse = <T>(
   message,
   data,
 });
+
+export const errorPaginatedResponse = <T>(
+  data: T[],
+  metaData: {
+    page: number;
+    limit: number;
+    total: number;
+  },
+  message = 'Request Failed',
+): TPaginatedResponse<T> => ({
+  success: false,
+  message,
+  data,
+  metadata: {
+    page: metaData.page,
+    limit: metaData.limit,
+    total: metaData.total,
+    totalPage: Math.ceil(metaData.total / metaData.limit),
+  },
+});
+// ----------- filter & serch util ----------------
+export const buildSearchAndFilterQuery = (
+  searchTerm: string,
+  filterFields: string[],
+  filters: Record<string, any>,
+) => {
+  const query: Record<string, any> = {};
+
+  // Search term handling
+  if (searchTerm) {
+    query.$or = filterFields.map((field) => ({
+      [field]: { $regex: searchTerm, $options: 'i' },
+    }));
+  }
+
+  // Additional filters handling
+  Object.keys(filters).forEach((key) => {
+    if (filters[key] !== undefined && filters[key] !== null) {
+      query[key] = filters[key];
+    }
+  });
+
+  return query;
+}
