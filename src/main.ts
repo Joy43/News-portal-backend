@@ -21,14 +21,10 @@ async function bootstrap() {
   app.enableCors({
     origin: (origin, callback) => {
       const allowedOrigins = [
-        'https://beta.australiancanvas.com',
-        'https://indiansydny.vercel.app',
-        'http://localhost:3000',
         'http://localhost:5173',
-        'https://api.australiancanvas.com/docs',
-        'https://australiancanvas.com',
-        'https://beta.australiancanvas.com',
-        'https://ai.australiancanvas.com',
+        'https://news-portal-backend-scsp.onrender.com',
+        'http://localhost:3000',
+        'localhost:5050/api',
       ];
 
       if (!origin || allowedOrigins.includes(origin)) {
