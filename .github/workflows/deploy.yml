@@ -1,41 +1,64 @@
-name: CI/CD Deploy with Docker Compose
+name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - dev
+    branches: [dev, main]
 
 jobs:
-  deploy:
+  build-and-push:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4  # Updated to v4 for consistency
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3  # Use official action for better security/maintenance
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/newsportal-server:latest .
+
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/newsportal-server:latest
+
+  deploy:
+    name: Deploy to VPS/EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push 
+
+    steps:
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build and Save Docker Image
-        run: |
-          docker compose -f compose.yml build
-          docker save indianssydney_backend-server -o server.tar
-          chmod 644 server.tar
-
-      - name: Copy image and compose file to server
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          scp -o StrictHostKeyChecking=no server.tar compose.yml ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}/backend/indianssydney_backend/
-
-      - name: Deploy on server
-        run: |
-          ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd ~/backend/indianssydney_backend
-            echo "Loading Docker image..."
-            docker load -i server.tar
-            echo "Starting Docker containers..."
-            docker compose up -d --build
-            docker image prune -f
-          EOF
+      - name: Deploy to VPS/EC2 via SSH
+        uses: appleboy/ssh-action@v1.2.4  # Updated to latest version (as of Dec 2025)
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+      
+          script: |
+            # Ensure app directory exists
+            mkdir -p ~/newsportal
+            cd ~/newsportal
+            
+            # Move uploaded file if needed (appleboy places in ~/.tmp/)
+            if [ -f ~/.tmp/compose.yml ]; then
+              mv ~/.tmp/compose.yml .
+            fi
+            
+            # Deploy: Stop old, pull new image, start
+            sudo docker compose down --remove-orphans
+            sudo docker compose rm -f
+            sudo docker compose pull
+            sudo docker compose up -d
+            sudo docker image prune -f
+            
+            # Optional: Tail logs briefly for verification
+            sudo docker compose logs --tail=10 server || true
