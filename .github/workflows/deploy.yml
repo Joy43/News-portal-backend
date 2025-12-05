@@ -20,12 +20,10 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/newsportal-server:latest .
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/newsportal-server:latest .
 
       - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/newsportal-server:latest
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/newsportal-server:latest
 
   deploy:
     name: Deploy to VPS/EC2
@@ -42,15 +40,12 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          source: docker-compose.yml 
+          target: ~/newsportal/ 
+          port: 22
+          debug: true 
 
-      - name: Copy .env file to server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          source: ".env.production" # Use a separate production .env file
-          target: "~/newsportal/.env"
+   
 
       - name: Deploy to VPS/EC2 via SSH
         uses: appleboy/ssh-action@v1.2.4
@@ -58,12 +53,9 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-
+          envs: DOCKER_USERNAME # Pass secret as env var to script
           script: |
             cd ~/newsportal
-
-            # Set environment variable for Docker Compose
-            export DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
 
             # Deploy: Stop old, pull new image, start
             sudo docker compose down --remove-orphans
@@ -80,3 +72,5 @@ jobs:
 
             # Tail logs briefly for verification
             sudo docker compose logs --tail=20 server
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
