@@ -19,8 +19,9 @@ async function bootstrap() {
     .build();
 
   app.enableCors({
-    origin: (origin, callback) => {
+    origin: (origin: string, callback: any) => {
       const allowedOrigins = [
+       'http://13.60.23.24',
         'http://localhost:5173',
         'https://news-portal-backend-scsp.onrender.com',
         'http://localhost:3000',
