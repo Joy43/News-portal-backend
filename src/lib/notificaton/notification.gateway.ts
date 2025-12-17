@@ -94,6 +94,8 @@ export class NotificationGateway
         userRegistration:
           Boolean(user.notificationToggle?.userRegistration) || false,
         contentStatus: Boolean(user.notificationToggle?.contentStatus) || false,
+        Article: Boolean(user.notificationToggle?.Article) || false,
+        Community: Boolean(user.notificationToggle?.Community) || false,
       };
 
       client.data = { user: payloadForSocketClient };
@@ -127,18 +129,7 @@ export class NotificationGateway
   }
 
   /**
-   * Extracts the JWT token from the client's headers or query.
-   *
-   * If the token is present in the Authorization header, it is extracted.
-   * If the token is not present in the Authorization header, the query
-   * parameter 'token' is checked for the token. If the token is present in
-   * the query parameter, it is extracted.
-   *
-   * If the token is not present in either the Authorization header or the
-   * query parameter, null is returned.
-   *
-   * If the token is present in the Authorization header but is not a Bearer
-   * token, the raw token is returned.
+  
    *
    * @param client - The socket client.
    * @returns The extracted JWT token or null if not present.
@@ -155,12 +146,7 @@ export class NotificationGateway
   }
 
   /**
-   * Subscribes a client to a user's notification room.
-   *
-   * If the user ID is not present in the clients map, a new Set is created
-   * and associated with the user ID. The client is then added to the Set.
-   * A log message is recorded with the user ID.
-   *
+
    * @param userId - The ID of the user to subscribe the client to.
    * @param client - The client socket to subscribe.
    */
@@ -174,13 +160,7 @@ export class NotificationGateway
 
   /**
    * Unsubscribes a client from a user's notification room.
-   *
-   * If the user ID is not present in the clients map, the function does
-   * nothing.
-   * If the user ID is present in the clients map, the client is removed
-   * from the Set associated with the user ID. If the Set is then empty, it
-   * is removed from the map.
-   * A log message is recorded with the user ID.
+   
    *
    * @param userId - The ID of the user to unsubscribe the client from.
    * @param client - The client socket to unsubscribe.

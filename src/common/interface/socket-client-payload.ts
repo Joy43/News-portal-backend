@@ -6,4 +6,6 @@ export type PayloadForSocketClient = {
   scheduling: boolean;
   userRegistration: boolean;
   contentStatus: boolean;
+  Article: boolean;
+  Community: boolean;
 };

@@ -1,22 +1,20 @@
 model Notification {
   id String @id @default(uuid())
-
   type    NotificationType
   title   String
   message String
   meta Json
-
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
-
   users UserNotification[] 
 }
 
 enum NotificationType {
  contentStatus
   LiveEvent
-  Shift
   UserRolechange
+  Article
+  Community
 }
 
 model UserNotification {
