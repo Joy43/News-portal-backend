@@ -1,4 +1,3 @@
-import { LiveEvent } from './../../../node_modules/.prisma/client/index.d';
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -26,6 +25,7 @@ export class NotificationGateway
 {
   private readonly logger = new Logger(NotificationGateway.name);
   private readonly clients = new Map<string, Set<Socket>>();
+  private readonly registeredEvents = new Set<string>();
 
   constructor(
     private readonly jwtService: JwtService,
@@ -41,18 +41,7 @@ export class NotificationGateway
   }
 
   /**
-   * Called when a client is connected to the server.
-   * @param client - The client that connected.
-   *
-   * Extracts the JWT token from the client's headers or query, verifies it,
-   * and if valid, subscribes the client to the corresponding user's
-   * notification room.
-   *
-   * If the token is invalid or missing, the client is disconnected.
-   *
-   * If the user is not found, the client is disconnected.
-   *
-   * If the user's notification toggle is invalid, the client is disconnected.
+    
    */
   async handleConnection(client: Socket) {
     try {
@@ -110,12 +99,7 @@ export class NotificationGateway
 
   /**
    * Handles the disconnection of a client from the server.
-   *
-   * If a user ID is associated with the client, it unsubscribes the client from
-   * the user's notification room and logs the disconnection with the user ID.
-   * If no user ID is associated, logs the disconnection for an unknown user.
-   *
-   * @param client - The socket client that has disconnected.
+
    */
 
   handleDisconnect(client: Socket) {
@@ -201,11 +185,52 @@ export class NotificationGateway
     return delay > 0 ? delay : 0;
   }
 
+  /**
+   * Registers an event name in the event registry.
+   * @param event - The event name to register.
+   */
+  private registerEvent(event: string): void {
+    if (!this.registeredEvents.has(event)) {
+      this.registeredEvents.add(event);
+      this.logger.debug(`Event registered: ${event}`);
+    }
+  }
+
+  /**
+   * Retrieves all registered event names.
+   * @returns An array of all registered event names.
+   */
+  public getRegisteredEvents(): string[] {
+    return Array.from(this.registeredEvents);
+  }
+
+  /**
+   * Retrieves event statistics including registered events and their usage.
+   * @returns An object containing event statistics.
+   */
+  public getEventStatistics(): {
+    totalEvents: number;
+    events: string[];
+    totalConnectedClients: number;
+  } {
+    const totalConnectedClients = Array.from(this.clients.values()).reduce(
+      (sum, clientSet) => sum + clientSet.size,
+      0,
+    );
+
+    return {
+      totalEvents: this.registeredEvents.size,
+      events: this.getRegisteredEvents(),
+      totalConnectedClients,
+    };
+  }
+
   public async notifySingleUser(
     userId: string,
     event: string,
     data: Notification,
   ): Promise<void> {
+    this.registerEvent(event);
     const clients = this.getClientsForUser(userId);
     if (clients.size === 0) {
       this.logger.warn(`No clients connected for user ${userId}`);
@@ -223,6 +248,7 @@ export class NotificationGateway
     event: string,
     data: Notification,
   ): Promise<void> {
+    this.registerEvent(event);
     if (userIds.length === 0) {
       this.logger.warn('No user IDs provided for notification');
       return;
@@ -237,6 +263,7 @@ export class NotificationGateway
     event: string,
     data: Notification,
   ): Promise<void> {
+    this.registerEvent(event);
     this.clients.forEach((clients, userId) => {
       clients.forEach((client) => {
         client.emit(event, data);
